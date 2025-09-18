@@ -1,3 +1,4 @@
+import 'package:anki_clone/feature/card-deck/providers/deck_provider.dart';
 import 'package:anki_clone/routing/router.dart';
 import 'package:anki_clone/utils/app_colors.dart';
 import 'package:flutter/material.dart';
@@ -14,12 +15,17 @@ class Homescreen extends HookConsumerWidget {
   Widget build(BuildContext context, WidgetRef ref) {
     final createDeckController = useTextEditingController();
     final deckRepo = DeckRepository();
+
     return Scaffold(
       backgroundColor: AppColors.bggreenish,
       appBar: AppBar(
-        title: const Text(
-          'KLON',
-          style: TextStyle(color: AppColors.white, fontWeight: FontWeight.w700, fontSize: 32),
+        centerTitle: false,
+        title: Padding(
+          padding: const EdgeInsets.only(left: 24),
+          child: const Text(
+            'KLON',
+            style: TextStyle(color: AppColors.white, fontWeight: FontWeight.w700, fontSize: 32),
+          ),
         ),
         backgroundColor: AppColors.bggreenish,
       ),
@@ -30,7 +36,7 @@ class Homescreen extends HookConsumerWidget {
             SizedBox(
               height: 170,
               width: double.infinity,
-              child: InkWell(
+              child: GestureDetector(
                 onTap: () => context.go('/cards'),
                 child: Card(
                   color: AppColors.cardDeckBG,
@@ -52,7 +58,7 @@ class Homescreen extends HookConsumerWidget {
             SizedBox(
               height: 170,
               width: double.infinity,
-              child: InkWell(
+              child: GestureDetector(
                 onTap: () {
                   context.go('/decks');
                 },
@@ -75,42 +81,65 @@ class Homescreen extends HookConsumerWidget {
           ],
         ),
       ),
-      floatingActionButton: FloatingActionButton(
-        onPressed: () => showDialog(
-          context: context,
-          builder: (context) => AlertDialog(
-            backgroundColor: AppColors.lightSalbei,
-            title: const Text('Create Deck'),
-            content: TextField(
-              controller: createDeckController,
-              decoration: InputDecoration(
-                border: OutlineInputBorder(borderRadius: BorderRadius.circular(12)),
-                hintText: 'deck name',
+      floatingActionButton: Fab(createDeckController: createDeckController, deckRepo: deckRepo),
+    );
+  }
+}
+
+class Fab extends HookConsumerWidget {
+  const Fab({super.key, required this.createDeckController, required this.deckRepo});
+
+  final TextEditingController createDeckController;
+  final DeckRepository deckRepo;
+
+  @override
+  Widget build(BuildContext context, WidgetRef ref) {
+    return FloatingActionButton(
+      onPressed: () => showDialog(
+        context: context,
+        builder: (context) => AlertDialog(
+          backgroundColor: AppColors.lightSalbei,
+          title: const Text('Create Deck', style: TextStyle(fontWeight: FontWeight.w600)),
+          content: TextField(
+            controller: createDeckController,
+            decoration: InputDecoration(
+              border: OutlineInputBorder(borderRadius: BorderRadius.circular(12)),
+              focusedBorder: OutlineInputBorder(
+                borderSide: BorderSide(color: AppColors.cardDeckBG),
+                borderRadius: BorderRadius.circular(12),
+              ),
+              hintText: 'deck name',
+            ),
+          ),
+          actions: [
+            TextButton(
+              onPressed: () {
+                createDeckController.clear();
+                context.pop();
+              },
+              child: const Text(
+                'Cancel',
+                style: TextStyle(color: AppColors.black, fontWeight: FontWeight.w600),
               ),
             ),
-            actions: [
-              TextButton(
-                onPressed: () {
-                  createDeckController.text = '';
-                  context.pop();
-                },
-                child: const Text('Cancel', style: TextStyle(color: AppColors.black)),
+            TextButton(
+              onPressed: () async {
+                await deckRepo.createDeck(createDeckController.text);
+                ref.invalidate(allDecksProvider);
+                createDeckController.clear();
+                context.pop();
+              },
+              child: const Text(
+                'OK',
+                style: TextStyle(color: AppColors.black, fontWeight: FontWeight.w600),
               ),
-              TextButton(
-                onPressed: () async {
-                  await deckRepo.createDeck(createDeckController.text);
-                  createDeckController.text = '';
-                  context.pop();
-                },
-                child: const Text('OK', style: TextStyle(color: AppColors.black)),
-              ),
-            ],
-          ),
+            ),
+          ],
         ),
-        shape: RoundedRectangleBorder(borderRadius: BorderRadiusGeometry.circular(50)),
-        backgroundColor: AppColors.fabBG,
-        child: Icon(Icons.add, color: AppColors.white),
       ),
+      shape: RoundedRectangleBorder(borderRadius: BorderRadiusGeometry.circular(50)),
+      backgroundColor: AppColors.fabBG,
+      child: Icon(Icons.add, color: AppColors.white),
     );
   }
 }

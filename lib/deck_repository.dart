@@ -1,5 +1,6 @@
 import 'package:anki_clone/database_service.dart';
 import 'package:anki_clone/feature/card-deck/models/card_deck.dart';
+import 'package:hooks_riverpod/hooks_riverpod.dart';
 import 'package:isar/isar.dart';
 
 class DeckRepository {
@@ -22,5 +23,10 @@ class DeckRepository {
     return await db.writeTxn(() async {
       return await db.cardDecks.delete(id);
     });
+  }
+
+  Future<CardDeck?> getDeckById(Id id) async{
+    final db = await DatabaseService.instance;
+    return await db.cardDecks.get(id);
   }
 }
