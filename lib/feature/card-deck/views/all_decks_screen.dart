@@ -6,6 +6,7 @@ import 'package:anki_clone/utils/app_colors.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_hooks/flutter_hooks.dart';
 import 'package:gap/gap.dart';
+import 'package:go_router/go_router.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
 
 class AllDecksScreen extends HookConsumerWidget {
@@ -20,6 +21,14 @@ class AllDecksScreen extends HookConsumerWidget {
     return Scaffold(
       backgroundColor: AppColors.bggreenish,
       appBar: AppBar(
+        leadingWidth: 100,
+        centerTitle: true,
+        leading: IconButton(
+          onPressed: () {
+            context.pop();
+          },
+          icon: Icon(Icons.arrow_back_ios_new_rounded),
+        ),
         foregroundColor: AppColors.white,
         title: const Text('Decks', style: TextStyle(fontSize: 32, fontWeight: FontWeight.w700)),
         backgroundColor: AppColors.bggreenish,
@@ -78,7 +87,7 @@ class DeckCardWithBottomMargin extends HookConsumerWidget {
         SizedBox(
           height: 170,
           width: double.infinity,
-          child: InkWell(
+          child: GestureDetector(
             onTap: () {},
             child: Card(
               color: AppColors.deckCardBG,
